@@ -17,8 +17,9 @@ const update = (id, newObject) => {
 }
 
 const deletePers = (id) => {
-    const request = axios.delete(`${baseURL}/${id}`)
-    return request.then(response => response.data)
+    return axios.delete(`${baseURL}/${id}`)
+        .then(response => response.data)
+        .catch(() => null) // In case backend returns no content
 }
 
 export default { getAll, create, update, deletePers }
