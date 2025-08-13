@@ -1,12 +1,8 @@
-const Filter = ({ searchItem, handleInputChange }) => {
-  return (
-    <div>
-      filter shown with: <input 
-        value={searchItem}
-        onChange={handleInputChange}
-      />
-    </div>
-  )
-}
+const Filter = ({ filter, setFilter }) => (
+  <div>
+    filter shown with{' '}
+    <input value={filter} onChange={(event) => setFilter(event.target.value)} />
+  </div>
+)
 
 export default Filter

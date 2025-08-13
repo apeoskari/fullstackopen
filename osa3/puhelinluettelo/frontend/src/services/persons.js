@@ -1,25 +1,27 @@
-import axios from "axios";
-const baseURL = "/api/persons"
+import axios from 'axios'
+
+const baseUrl = 'http://localhost:3001/api/persons'
 
 const getAll = () => {
-    const request = axios.get(baseURL)
-    return request.then(response => response.data)
+  const request = axios.get(baseUrl)
+  return request.then((response) => response.data)
 }
 
-const create = newObject => {
-    const request = axios.post(baseURL, newObject)
-    return request.then(response => response.data)
+const create = (newObject) => {
+  const request = axios.post(baseUrl, newObject)
+  return request.then((response) => response.data)
 }
 
-const update = (id, newObject) => {
-    const request = axios.put(`${baseURL}/${id}`, newObject)
-    return request.then(response => response.data)
+const remove = (id) => {
+  const url = `${baseUrl}/${id}`
+  const request = axios.delete(url)
+  return request.then((response) => response.data)
 }
 
-const deletePers = (id) => {
-    return axios.delete(`${baseURL}/${id}`)
-        .then(response => response.data)
-        .catch(() => null) // In case backend returns no content
+const update = (personObject) => {
+  const url = `${baseUrl}/${personObject.id}`
+  const request = axios.put(url, personObject)
+  return request.then((response) => response.data)
 }
 
-export default { getAll, create, update, deletePers }
+export default { getAll, create, remove, update }

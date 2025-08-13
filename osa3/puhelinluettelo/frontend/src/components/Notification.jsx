@@ -1,21 +1,21 @@
-const Notification = ({ message, state }) => {
-  if (message === null) {
+const Notification = ({ notification }) => {
+  const { message, isError } = notification
+
+  if (!message) {
     return null
   }
-  let msg_state = 'add'
 
-  if (state === 'change') {
-    msg_state = 'change'
-  }
-  if (state === 'delete') {
-    msg_state = 'delete'
+  const style = {
+    color: isError ? 'red' : 'green',
+    background: 'lightgrey',
+    fontSize: 20,
+    borderStyle: 'solid',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
   }
 
-  return (
-    <div className={msg_state}>
-      {message}
-    </div>
-  )
+  return <div style={style}>{message}</div>
 }
 
 export default Notification
