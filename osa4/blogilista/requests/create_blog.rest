@@ -1,8 +1,9 @@
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ikpva3VtdXUiLCJpZCI6IjY4YTcxM2EzMmY1NTg2ZWM0MzlkYmE2MCIsImlhdCI6MTc1NTc4MDYxNH0.M3p5u4SDWblWlMetGpvuwmQvsPk0F-4caO-COoRKXDY
 
 {
-    "title": "Second blog",
+    "title": "Third blog",
     "author": "Someone else",
     "url": "No idea either",
     "likes": 0
