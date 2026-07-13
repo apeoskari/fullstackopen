@@ -15,6 +15,6 @@ describe('Blog app', () => {
   })
 
   test('Login form is shown', async ({ page }) => {
-    // ...
+    await expect(page.getByText('log in to application')).toBeVisible()
   })
 })
