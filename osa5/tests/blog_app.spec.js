@@ -59,6 +59,10 @@ describe('Blog app', () => {
       await expect(page.getByText('1 likes')).toBeVisible()
     })
 
+    test('blogs arrange in the order of likes', async ({ page }) => {
+      //...
+    })
+
     describe('The user', () => {
       beforeEach(async ({ page }) => {
         await createBlog(page, 'Create blogs', 'Matti Luukkainen', 'ayy.fi')
