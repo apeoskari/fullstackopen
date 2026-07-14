@@ -60,7 +60,31 @@ describe('Blog app', () => {
     })
 
     test('blogs arrange in the order of likes', async ({ page }) => {
-      //...
+      await createBlog(page, 'Create blogs', 'Matti Luukkainen', 'ayy.fi')
+      await createBlog(page, 'More', 'Matti Luukkainen', 'tky.fi')
+      await createBlog(page, 'Even', 'Teemu Teekkari', 'ky.fi')
+
+      const blog1 = page.locator('.blog').filter({ hasText: 'Create blogs' })
+      await expect(blog1.getByText('view')).toBeVisible()
+      await blog1.getByRole('button', { name: 'view' }).click()
+      await blog1.getByRole('button', { name: 'like' }).click()
+
+      const blog2 = page.locator('.blog').filter({ hasText: 'More' })
+      await blog2.getByRole('button', { name: 'view' }).click()
+      await blog2.getByRole('button', { name: 'like' }).click()
+      await blog2.getByRole('button', { name: 'like' }).click()
+      await blog2.getByRole('button', { name: 'like' }).click()
+
+      const blog3 = page.locator('.blog').filter({ hasText: 'Even' })
+      await blog3.getByRole('button', { name: 'view' }).click()
+      await blog3.getByRole('button', { name: 'like' }).click()
+      await blog3.getByRole('button', { name: 'like' }).click()
+
+      const likes = await page.locator('.likes').evaluateAll(elements =>
+        elements.map(el => Number(el.textContent?.match(/\d+/)?.[0]))
+      )
+
+      expect(likes).toEqual([...likes].sort((a, b) => b - a))
     })
 
     describe('The user', () => {
