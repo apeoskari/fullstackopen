@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
+import blogService from './services/blogs'
+
+import {
+  Routes, Route, Link
+} from 'react-router-dom'
 
 import Blog from './components/Blog'
-import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
 import BlogForm from './components/BlogForm'
@@ -148,20 +152,22 @@ const App = () => {
     </button>
   )
 
+  const padding = {
+    padding: 5
+  }
+
   return (
     <div>
-      <Notification notification={notification} />
-      {!user && loginForm()}
-      {user && (
-        <div>
-          <h2>blogs</h2>
-          <p>{user.name} logged in {logoutButton()}</p>
-          <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-            <BlogForm createBlog={addBlog} />
-          </Togglable>
-          {blogList()}
-        </div>
-      )}
+      <div>
+        <Link style={padding} to="/">blogs</Link>
+        <Link style={padding} to="/login">login</Link>
+      </div>
+      <Routes>
+        <Route path="login" element={
+          <BlogList blogs={blogs} />
+        } />
+        <Route path="/" element={<Home />} />
+      </Routes>
     </div>
   )
 }
