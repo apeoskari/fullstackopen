@@ -40,6 +40,15 @@ describe('When there is initially some blogs saved', () => {
       .expect('Content-Type', /application\/json/)
   })
 
+  test('login returns the authenticated user id', async () => {
+    const response = await api
+      .post('/api/login')
+      .send({ username: 'testuser', password: 'sekret' })
+      .expect(200)
+
+    assert.ok(response.body.id)
+  })
+
   test('all blogs are returned', async () => {
     const response = await api.get('/api/blogs')
     assert.strictEqual(response.body.length, helper.initialBlogs.length)
