@@ -1,15 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
+import { Routes, Route, Link, Navigate } from 'react-router-dom'
+
+import Home from './components/Home'
 import blogService from './services/blogs'
-
-import {
-  Routes, Route, Link
-} from 'react-router-dom'
-
-import Blog from './components/Blog'
 import loginService from './services/login'
 import Notification from './components/Notification'
-import BlogForm from './components/BlogForm'
-import Togglable from './components/Togglable'
+import LoginForm from './components/Login'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -18,61 +14,18 @@ const App = () => {
   const [user, setUser] = useState(null)
   const [notification, setNotification] = useState({ message: null })
 
-  const blogFormRef = useRef()
-
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )
+    blogService.getAll().then(blogs => setBlogs(blogs))
   }, [])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
     if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      blogService.setToken(user.token)
+      const loggedUser = JSON.parse(loggedUserJSON)
+      setUser(loggedUser)
+      blogService.setToken(loggedUser.token)
     }
   }, [])
-
-  const addBlog = blogObject => {
-    blogFormRef.current.toggleVisibility()
-    blogService.create(blogObject).then(returnedBlog => {
-      setBlogs(blogs.concat(returnedBlog))
-    })
-  }
-
-  const deleteBlog = async blogObject => {
-    if (window.confirm(`Remove blog ${blogObject.title} by ${blogObject.author}?`)) {
-      try {
-        await blogService.deleteBlog(blogObject.id)
-        setBlogs(blogs.filter(blog => blog.id !== blogObject.id))
-        notifyWith('Blog removed successfully')
-      } catch (exception) {
-        console.error('Deleting blog failed', exception)
-        notifyWith('Deleting blog failed', true)
-      }
-    }
-  }
-
-  const likeBlog = async blogObject => {
-    try {
-      const updatedBlog = await blogService.like(blogObject.id, {
-        title: blogObject.title,
-        author: blogObject.author,
-        url: blogObject.url,
-        likes: blogObject.likes + 1
-      })
-      setBlogs(blogs.map(blog =>
-        blog.id === blogObject.id
-          ? { ...updatedBlog, user: blog.user }
-          : blog
-      ))
-    } catch (exception) {
-      console.error('Liking blog failed', exception)
-      notifyWith('Liking blog failed', true)
-    }
-  }
 
   const notifyWith = (message, isError = false) => {
     setNotification({ message, isError })
@@ -84,73 +37,71 @@ const App = () => {
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
-      const user = await loginService.login({ username, password })
+      const loggedInUser = await loginService.login({ username, password })
 
       window.localStorage.setItem(
-        'loggedBlogappUser', JSON.stringify(user)
+        'loggedBlogappUser', JSON.stringify(loggedInUser)
       )
-      blogService.setToken(user.token)
-      setUser(user)
+      blogService.setToken(loggedInUser.token)
+      setUser(loggedInUser)
       setUsername('')
       setPassword('')
-      notifyWith(`Welcome back, ${user.name}!`)
+      notifyWith(`Welcome back, ${loggedInUser.name}!`)
     } catch (exception) {
       console.error('Login failed', exception)
       notifyWith('Wrong username or password', true)
     }
   }
 
-  const loginForm = () => (
-    <div>
-      <h2>log in to application</h2>
-      <form onSubmit={handleLogin}>
-        <div>
-          <label>
-            username
-            <input
-              type="text"
-              value={username}
-              onChange={({ target }) => setUsername(target.value)}
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            password
-            <input
-              type="password"
-              value={password}
-              onChange={({ target }) => setPassword(target.value)}
-            />
-          </label>
-        </div>
-        <button type="submit">login</button>
-      </form>
-    </div>
-  )
-
-  const blogList = () => {
-    const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes)
-
-    return (
-      <div>
-        {sortedBlogs.map(blog =>
-          <Blog key={blog.id} blog={blog} user={user} handleLike={() => likeBlog(blog)} handleDelete={() => deleteBlog(blog)} />
-        )}
-      </div>
-    )
+  const handleLogout = () => {
+    window.localStorage.removeItem('loggedBlogappUser')
+    setUser(null)
+    notifyWith('Logged out successfully')
+    blogService.setToken(null)
   }
 
-  const logoutButton = () => (
-    <button onClick={() => {
-      window.localStorage.removeItem('loggedBlogappUser')
-      setUser(null)
-      notifyWith('Logged out successfully')
-      blogService.setToken(null)
-    }}>
-      logout
-    </button>
-  )
+  const createBlog = async (blogObject) => {
+    try {
+      const createdBlog = await blogService.create(blogObject)
+      setBlogs(blogs => [createdBlog, ...blogs])
+      notifyWith(`A new blog ${createdBlog.title} by ${createdBlog.author} added`)
+    } catch (exception) {
+      console.error('Creating blog failed', exception)
+      notifyWith('Creating blog failed', true)
+    }
+  }
+
+  const deleteBlog = async (blogObject) => {
+    if (window.confirm(`Remove blog ${blogObject.title} by ${blogObject.author}?`)) {
+      try {
+        await blogService.deleteBlog(blogObject.id)
+        setBlogs(blogs => blogs.filter(blog => blog.id !== blogObject.id))
+        notifyWith('Blog removed successfully')
+      } catch (exception) {
+        console.error('Deleting blog failed', exception)
+        notifyWith('Deleting blog failed', true)
+      }
+    }
+  }
+
+  const likeBlog = async (blogObject) => {
+    try {
+      const updatedBlog = await blogService.like(blogObject.id, {
+        title: blogObject.title,
+        author: blogObject.author,
+        url: blogObject.url,
+        likes: blogObject.likes + 1
+      })
+      setBlogs(blogs => blogs.map(blog =>
+        blog.id === blogObject.id
+          ? { ...updatedBlog, user: blog.user }
+          : blog
+      ))
+    } catch (exception) {
+      console.error('Liking blog failed', exception)
+      notifyWith('Liking blog failed', true)
+    }
+  }
 
   const padding = {
     padding: 5
@@ -158,15 +109,39 @@ const App = () => {
 
   return (
     <div>
+      <Notification notification={notification} />
       <div>
         <Link style={padding} to="/">blogs</Link>
-        <Link style={padding} to="/login">login</Link>
+        {!user && <Link style={padding} to="/login">login</Link>}
+        {user && <button onClick={handleLogout}>logout</button>}
       </div>
       <Routes>
-        <Route path="login" element={
-          <BlogList blogs={blogs} />
-        } />
-        <Route path="/" element={<Home />} />
+        <Route
+          path="/"
+          element={
+            <Home
+              blogs={blogs}
+              user={user}
+              createBlog={createBlog}
+              handleLike={likeBlog}
+              handleDelete={deleteBlog}
+            />
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            user
+              ? <Navigate to="/" replace />
+              : <LoginForm
+                username={username}
+                password={password}
+                handleUsernameChange={({ target }) => setUsername(target.value)}
+                handlePasswordChange={({ target }) => setPassword(target.value)}
+                handleLogin={handleLogin}
+              />
+          }
+        />
       </Routes>
     </div>
   )
