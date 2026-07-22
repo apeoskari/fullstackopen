@@ -24,13 +24,13 @@ const Home = ({ blogs, user, createBlog }) => {
           <BlogForm createBlog={addBlog} />
         </Togglable>
       )}
-      <div>
-        {sortedBlogs.map(blog =>
+      <ul>
+        {sortedBlogs.map(blog => (
           <li key={blog.id}>
-            <Link to={'/blogs/${blog.id}'}>{blog.title} by {blog.author}</Link>
+            <Link to={`/blogs/${blog.id}`}>{blog.title} by {blog.author}</Link>
           </li>
-        )}
-      </div>
+        ))}
+      </ul>
     </div>
   )
 }

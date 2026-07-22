@@ -141,8 +141,9 @@ const App = () => {
           path="/blogs/:id" element={
             <Blog
               blog={blog}
-              likeBlog={likeBlog}
-              deleteBlog={deleteBlog}
+              user={user}
+              handleLike={likeBlog}
+              handleDelete={deleteBlog}
             />
           }
         />

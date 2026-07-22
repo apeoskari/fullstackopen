@@ -1,6 +1,15 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import Blog from './Blog'
+
+const renderBlog = (props) => render(
+  <MemoryRouter initialEntries={['/blogs/blog-1']}>
+    <Routes>
+      <Route path="/blogs/:id" element={<Blog {...props} />} />
+    </Routes>
+  </MemoryRouter>
+)
 
 test('renders content', () => {
   const blog = {
@@ -13,23 +22,21 @@ test('renders content', () => {
     }
   }
 
-  render(<Blog blog={blog} />)
+  renderBlog({ blog })
 
   const element = screen.getByText(
     'Some Title', { exact: false }
   )
   expect(element).toBeDefined()
 
-  const button = screen.getByText('view')
-  expect(button).toBeDefined()
-
-  screen.debug()
+  const button = screen.getByRole('button', { name: 'like' })
+  expect(button).toBeDisabled()
 
   const urlElement = screen.getByText('URL')
-  expect(urlElement).not.toBeVisible()
+  expect(urlElement).toBeDefined()
 
-  const likesElement = screen.getByText('0 likes')
-  expect(likesElement).not.toBeVisible()
+  const likesElement = screen.getByText('likes 0', { exact: false })
+  expect(likesElement).toBeDefined()
 })
 
 test('renders url and likes when view button is clicked', async () => {
@@ -43,16 +50,12 @@ test('renders url and likes when view button is clicked', async () => {
     }
   }
 
-  render(<Blog blog={blog} />)
-
-  const user = userEvent.setup()
-  const button = screen.getByText('view')
-  await user.click(button)
+  renderBlog({ blog })
 
   const urlElement = screen.getByText('URL-2.fi')
   expect(urlElement).toBeDefined()
 
-  const likesElement = screen.getByText('1 likes', { exact: false })
+  const likesElement = screen.getByText('likes 1', { exact: false })
   expect(likesElement).toBeDefined()
 })
 
@@ -69,16 +72,55 @@ test('clicking the like button twice calls event handler twice', async () => {
 
   const mockHandler = vi.fn()
 
-  render(<Blog blog={blog} handleLike={mockHandler} />)
+  renderBlog({ blog, handleLike: mockHandler })
 
   const user = userEvent.setup()
-  // open the details to reveal the like button
-  const viewButton = screen.getByText('view')
-  await user.click(viewButton)
 
-  const button = screen.getByText('like')
+  const button = screen.getByRole('button', { name: 'like' })
   await user.click(button)
   await user.click(button)
 
   expect(mockHandler.mock.calls).toHaveLength(2)
+})
+
+test('calls handleLike with the blog object when a logged in user clicks like', async () => {
+  const blog = {
+    id: 'blog-1',
+    title: 'Other Title',
+    author: 'You',
+    url: 'URL-2.fi',
+    likes: 1,
+    user: {
+      id: 'user-1',
+      name: 'Me'
+    }
+  }
+
+  const user = { id: 'user-1', name: 'Me' }
+  const mockHandler = vi.fn()
+
+  renderBlog({ blog, user, handleLike: mockHandler })
+
+  const userEventInstance = userEvent.setup()
+  await userEventInstance.click(screen.getByRole('button', { name: 'like' }))
+
+  expect(mockHandler).toHaveBeenCalledWith(blog)
+})
+
+test('disables the like button for guests', () => {
+  const blog = {
+    id: 'blog-2',
+    title: 'Guest Blog',
+    author: 'You',
+    url: 'URL-3.fi',
+    likes: 0,
+    user: {
+      id: 'user-2',
+      name: 'Me'
+    }
+  }
+
+  renderBlog({ blog, handleLike: vi.fn() })
+
+  expect(screen.getByRole('button', { name: 'like' })).toBeDisabled()
 })

@@ -1,7 +1,6 @@
-import { useParams, useNavigate } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const Blog = ({ blog, user, handleLike, handleDelete }) => {
-  const id = useParams().id
   const navigate = useNavigate()
 
   if(!blog) {
@@ -11,15 +10,17 @@ const Blog = ({ blog, user, handleLike, handleDelete }) => {
   const handleDeleteClick = () => {
     if (handleDelete && window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
       handleDelete(blog)
+      navigate('/blogs')
     }
   }
 
   const handleLikeClick = () => {
-    if (handleLike) {
+    if (user && handleLike) {
       handleLike(blog)
     }
   }
 
+  /*
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
@@ -27,18 +28,19 @@ const Blog = ({ blog, user, handleLike, handleDelete }) => {
     borderWidth: 1,
     marginBottom: 5
   }
+  */
 
   return (
     <li className='blog'>
+      <h2>
+        {blog.author}: {blog.title}
+      </h2>
       <div>
-        {blog.title} {blog.author}
-      </div>
-      <div>
-        <div>{blog.url}</div>
+        <a href={blog.url}>{blog.url}</a>
         <div className='likes'>
-          {blog.likes} likes <button onClick={handleLikeClick}>like</button>
+          likes {blog.likes}<button onClick={handleLikeClick} disabled={!user}>like</button>
         </div>
-        <div>{blog.user?.name}</div>
+        <div>Added by {blog.user?.name}</div>
         {user && blog.user && user.id === blog.user.id && (
           <button onClick={handleDeleteClick}>remove</button>
         )}
