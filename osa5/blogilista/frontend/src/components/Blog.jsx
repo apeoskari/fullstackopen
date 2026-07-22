@@ -10,7 +10,7 @@ const Blog = ({ blog, user, handleLike, handleDelete }) => {
   const handleDeleteClick = () => {
     if (handleDelete && window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
       handleDelete(blog)
-      navigate('/blogs')
+      navigate('/')
     }
   }
 
@@ -38,7 +38,10 @@ const Blog = ({ blog, user, handleLike, handleDelete }) => {
       <div>
         <a href={blog.url}>{blog.url}</a>
         <div className='likes'>
-          likes {blog.likes}<button onClick={handleLikeClick} disabled={!user}>like</button>
+          likes {blog.likes}
+          {user && (
+            <button onClick={handleLikeClick}>like</button>
+          )}
         </div>
         <div>Added by {blog.user?.name}</div>
         {user && blog.user && user.id === blog.user.id && (

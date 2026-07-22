@@ -1,9 +1,12 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const BlogForm = ({ createBlog }) => {
   const [newBlog, setNewBlog] = useState('')
   const [newAuthor, setNewAuthor] = useState('')
   const [newUrl, setNewUrl] = useState('')
+
+  const navigate = useNavigate()
 
   const addBlog = (event) => {
     event.preventDefault()
@@ -16,6 +19,11 @@ const BlogForm = ({ createBlog }) => {
     setNewAuthor('')
     setNewUrl('')
   }
+
+  const handleSubmit = () => {
+    navigate('/')
+  }
+
   return (
     <div>
       <h2>create new</h2>
@@ -23,7 +31,7 @@ const BlogForm = ({ createBlog }) => {
       <form onSubmit={addBlog}>
         <div>
           <label>
-            title
+            title:
             <input
               type="text"
               value={newBlog}
@@ -34,7 +42,7 @@ const BlogForm = ({ createBlog }) => {
         </div>
         <div>
           <label>
-            author
+            author:
             <input
               type="text"
               value={newAuthor}
@@ -45,7 +53,7 @@ const BlogForm = ({ createBlog }) => {
         </div>
         <div>
           <label>
-            url
+            url:
             <input
               type="text"
               value={newUrl}
@@ -54,7 +62,7 @@ const BlogForm = ({ createBlog }) => {
             />
           </label>
         </div>
-        <button type="submit">create</button>
+        <button type="submit" onClick={handleSubmit}>create</button>
       </form>
     </div>
   )

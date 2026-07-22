@@ -7,6 +7,7 @@ import loginService from './services/login'
 import Notification from './components/Notification'
 import LoginForm from './components/Login'
 import Blog from './components/Blog'
+import BlogForm from './components/BlogForm'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -61,27 +62,20 @@ const App = () => {
     blogService.setToken(null)
   }
 
-  const createBlog = async (blogObject) => {
-    try {
-      const createdBlog = await blogService.create(blogObject)
-      setBlogs(blogs => [createdBlog, ...blogs])
-      notifyWith(`A new blog ${createdBlog.title} by ${createdBlog.author} added`)
-    } catch (exception) {
-      console.error('Creating blog failed', exception)
-      notifyWith('Creating blog failed', true)
-    }
+  const addBlog = blogObject => {
+    blogService.create(blogObject).then(returnedBlog => {
+      setBlogs(blogs.concat(returnedBlog))
+    })
   }
 
   const deleteBlog = async (blogObject) => {
-    if (window.confirm(`Remove blog ${blogObject.title} by ${blogObject.author}?`)) {
-      try {
-        await blogService.deleteBlog(blogObject.id)
-        setBlogs(blogs => blogs.filter(blog => blog.id !== blogObject.id))
-        notifyWith('Blog removed successfully')
-      } catch (exception) {
-        console.error('Deleting blog failed', exception)
-        notifyWith('Deleting blog failed', true)
-      }
+    try {
+      await blogService.deleteBlog(blogObject.id)
+      setBlogs(blogs => blogs.filter(blog => blog.id !== blogObject.id))
+      notifyWith('Blog removed successfully')
+    } catch (exception) {
+      console.error('Deleting blog failed', exception)
+      notifyWith('Deleting blog failed', true)
     }
   }
 
@@ -121,6 +115,7 @@ const App = () => {
       <Notification notification={notification} />
       <div>
         <Link style={padding} to="/">blogs</Link>
+        <Link style={padding} to="/create">new blog</Link>
         {!user && <Link style={padding} to="/login">login</Link>}
         {user && <button onClick={handleLogout}>logout</button>}
       </div>
@@ -131,7 +126,6 @@ const App = () => {
             <Home
               blogs={blogs}
               user={user}
-              createBlog={createBlog}
               handleLike={likeBlog}
               handleDelete={deleteBlog}
             />
@@ -146,6 +140,10 @@ const App = () => {
               handleDelete={deleteBlog}
             />
           }
+        />
+        <Route
+          path="/create"
+          element={<BlogForm createBlog={addBlog}/>}
         />
         <Route
           path="/login"

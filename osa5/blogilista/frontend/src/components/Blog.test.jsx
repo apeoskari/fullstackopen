@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import Blog from './Blog'
+import { expect } from 'vitest'
 
 const renderBlog = (props) => render(
   <MemoryRouter initialEntries={['/blogs/blog-1']}>
@@ -11,116 +11,101 @@ const renderBlog = (props) => render(
   </MemoryRouter>
 )
 
-test('renders content', () => {
+test('renders blog correctly for a guest', () => {
   const blog = {
     title: 'Some Title',
-    author: 'Me',
-    url: 'URL',
-    likes: 0,
+    author: 'Erkki Erikoinen',
+    url: 'URL_1.fi',
+    likes: 16,
     user: {
-      name: 'Me'
+      name: 'Maija Makinen'
     }
   }
 
   renderBlog({ blog })
 
   const element = screen.getByText(
-    'Some Title', { exact: false }
+    'Erkki Erikoinen: Some Title', { exact: false }
   )
   expect(element).toBeDefined()
 
-  const button = screen.getByRole('button', { name: 'like' })
-  expect(button).toBeDisabled()
+  const likeButton = screen.queryByRole('button', { name: 'like' })
+  expect(likeButton).not.toBeInTheDocument()
 
-  const urlElement = screen.getByText('URL')
+  const urlElement = screen.getByText('URL_1.fi')
   expect(urlElement).toBeDefined()
 
-  const likesElement = screen.getByText('likes 0', { exact: false })
+  const likesElement = screen.getByText('likes 16', { exact: false })
   expect(likesElement).toBeDefined()
+
+  const removeButton = screen.queryByRole('button', { name: 'remove' })
+  expect(removeButton).not.toBeInTheDocument()
 })
 
-test('renders url and likes when view button is clicked', async () => {
+test('renders blog and like button for user who did not create the blog', () => {
   const blog = {
     title: 'Other Title',
-    author: 'You',
-    url: 'URL-2.fi',
-    likes: 1,
+    author: 'Erkki Erikoinen',
+    url: 'URL_2.fi',
+    likes: 18,
     user: {
-      name: 'Me'
+      id: '123',
+      name: 'Maija Makinen'
     }
   }
 
-  renderBlog({ blog })
+  const user = { id: '321', name: 'Taija Nykänen' }
 
-  const urlElement = screen.getByText('URL-2.fi')
+  renderBlog({ blog, user })
+
+  const element = screen.getByText(
+    'Erkki Erikoinen: Other Title', { exact: false }
+  )
+  expect(element).toBeDefined()
+
+  const likeButton = screen.queryByRole('button', { name: 'like' })
+  expect(likeButton).toBeInTheDocument()
+
+  const urlElement = screen.getByText('URL_2.fi')
   expect(urlElement).toBeDefined()
 
-  const likesElement = screen.getByText('likes 1', { exact: false })
+  const likesElement = screen.getByText('likes 18', { exact: false })
   expect(likesElement).toBeDefined()
+
+  const removeButton = screen.queryByRole('button', { name: 'remove' })
+  expect(removeButton).not.toBeInTheDocument()
 })
 
-test('clicking the like button twice calls event handler twice', async () => {
+test('renders everything for the creator of the blog', () => {
   const blog = {
-    title: 'Other Title',
-    author: 'You',
-    url: 'URL-2.fi',
-    likes: 1,
+    title: 'Third Title',
+    author: 'Erkki Erikoisempi',
+    url: 'URL_3.fi',
+    likes: 7,
     user: {
-      name: 'Me'
+      id: '123',
+      name: 'Maija Makinen'
     }
   }
 
-  const mockHandler = vi.fn()
+  const user = { id: '123', name: 'Maija Makinen' }
 
-  renderBlog({ blog, handleLike: mockHandler })
+  renderBlog({ blog, user })
 
-  const user = userEvent.setup()
+  const element = screen.getByText(
+    'Erkki Erikoisempi: Third Title', { exact: false }
+  )
+  expect(element).toBeDefined()
 
-  const button = screen.getByRole('button', { name: 'like' })
-  await user.click(button)
-  await user.click(button)
+  const likeButton = screen.queryByRole('button', { name: 'like' })
+  expect(likeButton).toBeInTheDocument()
 
-  expect(mockHandler.mock.calls).toHaveLength(2)
-})
+  const urlElement = screen.getByText('URL_3.fi')
+  expect(urlElement).toBeDefined()
 
-test('calls handleLike with the blog object when a logged in user clicks like', async () => {
-  const blog = {
-    id: 'blog-1',
-    title: 'Other Title',
-    author: 'You',
-    url: 'URL-2.fi',
-    likes: 1,
-    user: {
-      id: 'user-1',
-      name: 'Me'
-    }
-  }
+  const likesElement = screen.getByText('likes 7', { exact: false })
+  expect(likesElement).toBeDefined()
 
-  const user = { id: 'user-1', name: 'Me' }
-  const mockHandler = vi.fn()
-
-  renderBlog({ blog, user, handleLike: mockHandler })
-
-  const userEventInstance = userEvent.setup()
-  await userEventInstance.click(screen.getByRole('button', { name: 'like' }))
-
-  expect(mockHandler).toHaveBeenCalledWith(blog)
-})
-
-test('disables the like button for guests', () => {
-  const blog = {
-    id: 'blog-2',
-    title: 'Guest Blog',
-    author: 'You',
-    url: 'URL-3.fi',
-    likes: 0,
-    user: {
-      id: 'user-2',
-      name: 'Me'
-    }
-  }
-
-  renderBlog({ blog, handleLike: vi.fn() })
-
-  expect(screen.getByRole('button', { name: 'like' })).toBeDisabled()
+  const removeButton = screen.queryByRole('button', { name: 'remove' })
+  expect(removeButton).toBeInTheDocument()
 })
