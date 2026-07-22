@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Routes, Route, Link, Navigate } from 'react-router-dom'
+import { Routes, Route, Link, Navigate, useMatch } from 'react-router-dom'
 
 import Home from './components/Home'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
 import LoginForm from './components/Login'
+import Blog from './components/Blog'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -107,6 +108,14 @@ const App = () => {
     padding: 5
   }
 
+  const match = useMatch('/blogs/:id')
+
+  const blog = match
+    ? blogs.find(blog => blog.id === match.params.id)
+    : null
+
+  console.log(blog)
+
   return (
     <div>
       <Notification notification={notification} />
@@ -125,6 +134,15 @@ const App = () => {
               createBlog={createBlog}
               handleLike={likeBlog}
               handleDelete={deleteBlog}
+            />
+          }
+        />
+        <Route
+          path="/blogs/:id" element={
+            <Blog
+              blog={blog}
+              likeBlog={likeBlog}
+              deleteBlog={deleteBlog}
             />
           }
         />

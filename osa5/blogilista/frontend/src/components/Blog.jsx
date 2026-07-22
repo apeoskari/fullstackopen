@@ -1,9 +1,12 @@
-import { useState } from 'react'
+import { useParams, useNavigate } from 'react'
 
 const Blog = ({ blog, user, handleLike, handleDelete }) => {
-  const [visible, setVisible] = useState(false)
+  const id = useParams().id
+  const navigate = useNavigate()
 
-  const showWhenVisible = { display: visible ? '' : 'none' }
+  if(!blog) {
+    return null
+  }
 
   const handleDeleteClick = () => {
     if (handleDelete && window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
@@ -26,11 +29,11 @@ const Blog = ({ blog, user, handleLike, handleDelete }) => {
   }
 
   return (
-    <div className='blog' style={blogStyle}>
+    <li className='blog'>
       <div>
-        {blog.title} {blog.author} <button onClick={() => setVisible(!visible)}>{visible ? 'hide' : 'view'}</button>
+        {blog.title} {blog.author}
       </div>
-      <div style={showWhenVisible}>
+      <div>
         <div>{blog.url}</div>
         <div className='likes'>
           {blog.likes} likes <button onClick={handleLikeClick}>like</button>
@@ -40,7 +43,7 @@ const Blog = ({ blog, user, handleLike, handleDelete }) => {
           <button onClick={handleDeleteClick}>remove</button>
         )}
       </div>
-    </div>
+    </li>
   )
 }
 
