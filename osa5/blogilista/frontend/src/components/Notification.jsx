@@ -1,3 +1,5 @@
+import { Alert } from '@mui/material'
+
 const Notification = ({ notification }) => {
   const { message, isError } = notification
 
@@ -15,7 +17,11 @@ const Notification = ({ notification }) => {
     marginBottom: 10,
   }
 
-  return <div style={style}>{message}</div>
+  return (
+    <Alert style={style} severity={ isError ? 'error' : 'success' }>
+      {message}
+    </Alert>
+  )
 }
 
 export default Notification

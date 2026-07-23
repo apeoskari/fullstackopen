@@ -66,6 +66,7 @@ const App = () => {
   const addBlog = blogObject => {
     blogService.create(blogObject).then(returnedBlog => {
       setBlogs(blogs.concat(returnedBlog))
+      notifyWith(`a new blog '${returnedBlog.title}' by '${returnedBlog.author}' added`)
     })
   }
 
