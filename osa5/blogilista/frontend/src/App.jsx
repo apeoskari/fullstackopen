@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Routes, Route, Link, Navigate, useMatch } from 'react-router-dom'
+import { Container } from '@mui/material'
 
 import Home from './components/Home'
 import blogService from './services/blogs'
@@ -111,14 +112,14 @@ const App = () => {
   console.log(blog)
 
   return (
-    <div>
-      <Notification notification={notification} />
+    <Container>
       <div>
         <Link style={padding} to="/">blogs</Link>
         <Link style={padding} to="/create">new blog</Link>
         {!user && <Link style={padding} to="/login">login</Link>}
         {user && <button onClick={handleLogout}>logout</button>}
       </div>
+      <Notification notification={notification} />
       <Routes>
         <Route
           path="/"
@@ -160,7 +161,7 @@ const App = () => {
           }
         />
       </Routes>
-    </div>
+    </Container>
   )
 }
 
