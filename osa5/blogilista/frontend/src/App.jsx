@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Routes, Route, Link, Navigate, useMatch } from 'react-router-dom'
-import { Container } from '@mui/material'
+import { AppBar, Button, Container, Toolbar, Typography } from '@mui/material'
 
 import Home from './components/Home'
 import blogService from './services/blogs'
@@ -100,10 +100,6 @@ const App = () => {
     }
   }
 
-  const padding = {
-    padding: 5
-  }
-
   const match = useMatch('/blogs/:id')
 
   const blog = match
@@ -114,12 +110,15 @@ const App = () => {
 
   return (
     <Container>
-      <div>
-        <Link style={padding} to="/">blogs</Link>
-        <Link style={padding} to="/create">new blog</Link>
-        {!user && <Link style={padding} to="/login">login</Link>}
-        {user && <button onClick={handleLogout}>logout</button>}
-      </div>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>Blog app</Typography>
+          <Button color="inherit" component={Link} to="/">blogs</Button>
+          <Button color="inherit" component={Link} to="/create">new blog</Button>
+          {!user && <Button color="inherit" component={Link} to="/login">login</Button>}
+          {user && <Button color="inherit" onClick={handleLogout}>logout</Button>}
+        </Toolbar>
+      </AppBar>
       <Notification notification={notification} />
       <Routes>
         <Route
