@@ -1,4 +1,5 @@
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { Box, Button, Card, CardContent, Stack, Typography } from '@mui/material'
 
 const Blog = ({ blog, user, handleLike, handleDelete }) => {
   const navigate = useNavigate()
@@ -20,35 +21,32 @@ const Blog = ({ blog, user, handleLike, handleDelete }) => {
     }
   }
 
-  /*
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5
-  }
-  */
-
   return (
-    <li className='blog'>
-      <h2>
-        {blog.author}: {blog.title}
-      </h2>
-      <div>
-        <a href={blog.url}>{blog.url}</a>
-        <div className='likes'>
-          likes {blog.likes}
-          {user && (
-            <button onClick={handleLikeClick}>like</button>
-          )}
-        </div>
-        <div>Added by {blog.user?.name}</div>
-        {user && blog.user && user.id === blog.user.id && (
-          <button onClick={handleDeleteClick}>remove</button>
-        )}
-      </div>
-    </li>
+    <div className='blog'>
+      <Card>
+        <CardContent>
+          <Typography variant="h5">
+            {blog.title}
+          </Typography>
+          <Typography sx={{ color: 'text.secondary', fontSize: 18, mb: 1  }}>
+            by {blog.author}
+          </Typography>
+          <Typography component={Link} href={blog.url}>
+            {blog.url}
+          </Typography>
+          <Typography sx={{ color: 'text.secondary', mb: 1 }}>
+            Added by {blog.user?.name}
+          </Typography>
+          <Box sx={{ gap: 1, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+            <Typography>
+              {blog.likes} likes
+            </Typography>
+            {user && <Button className="likes" variant="outlined" onClick={handleLikeClick}>like</Button>}
+            {user && blog.user && user.id === blog.user.id && <Button variant="outlined" color="error" onClick={handleDeleteClick}>remove</Button>}
+          </Box>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
 
